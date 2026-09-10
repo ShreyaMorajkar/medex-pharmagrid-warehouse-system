@@ -675,3 +675,54 @@ th:last-child, td:last-child {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+
+/* Team Footer */
+.project-footer {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  border-top: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  text-align: center;
+}
+
+.project-footer .team-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.team-members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.team-member-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.team-member-card .member-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #38bdf8;
+  display: block;
+}
+
+.team-member-card .member-role {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  display: block;
+}
+

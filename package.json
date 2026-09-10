@@ -21,7 +21,25 @@
     "rbac",
     "supply-chain"
   ],
-  "author": "Shreya Morajkar, Shreya Nair, Sarah Rajesh, Sanjana Kothwal",
+  "author": "Shreya Sunil Morajkar, Shreya V Nair, Sarah Mariam Rajesh, Sanjana N Kothwal",
+  "contributors": [
+    {
+      "name": "Shreya Sunil Morajkar",
+      "email": "shreyasunilmorajkar28@gmail.com"
+    },
+    {
+      "name": "Shreya V Nair",
+      "email": "shreyavnair@gmail.com"
+    },
+    {
+      "name": "Sarah Mariam Rajesh",
+      "email": "sarahmariamrajesh@gmail.com"
+    },
+    {
+      "name": "Sanjana N Kothwal",
+      "email": "sanjanakothwal@gmail.com"
+    }
+  ],
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
