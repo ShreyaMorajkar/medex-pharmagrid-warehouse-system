@@ -1,0 +1,39 @@
+{
+  "name": "medex-pharmagrid-warehouse-system",
+  "version": "1.0.0",
+  "description": "Multi-Warehouse Pharmaceutical & Cold-Chain Logistics Management System - CIA 3 Advanced JS",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node seed/seed.js",
+    "test:api": "node test/test-suite.js"
+  },
+  "keywords": [
+    "warehouse-management",
+    "pharmaceutical-logistics",
+    "cold-chain",
+    "inventory-system",
+    "express",
+    "mongodb",
+    "mongoose",
+    "jwt",
+    "rbac",
+    "supply-chain"
+  ],
+  "author": "Shreya Morajkar, Shreya Nair, Sarah Rajesh, Sanjana Kothwal",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.5",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
