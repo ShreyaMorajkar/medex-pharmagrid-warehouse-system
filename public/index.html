@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedEx PharmaGrid — Multi-Warehouse Pharmaceutical & Cold-Chain Logistics Network</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="logo-area">
+      <div class="logo-icon">
+        <i class="fa-solid fa-truck-medical"></i>
+      </div>
+      <div class="logo-text">
+        <h1>MedEx PharmaGrid</h1>
+        <p>National Pharmaceutical & Cold-Chain Logistics Grid</p>
+      </div>
+    </div>
+
+    <!-- Quick Role Switcher Bar for Live Demo -->
+    <div class="role-switcher-bar">
+      <span><i class="fa-solid fa-user-gear"></i> Demo Switcher:</span>
+      <button class="role-btn active" onclick="switchUserRole('admin')">Admin (Global)</button>
+      <button class="role-btn" onclick="switchUserRole('chennaiManager')">Chennai Mgr (Cold-Chain)</button>
+      <button class="role-btn" onclick="switchUserRole('delhiManager')">Delhi Mgr (Regional)</button>
+      <button class="role-btn" onclick="switchUserRole('hydStaff')">Hyd Staff</button>
+      <button class="role-btn" onclick="switchUserRole('kolkataStaff')">Kolkata Staff</button>
+    </div>
+
+    <div class="user-badge" id="currentUserDisplay">
+      <i class="fa-solid fa-circle-user"></i>
+      <div>
+        <span id="userName">Dr. Vikram Malhotra</span>
+        <span class="role-tag ADMIN" id="userRoleTag">ADMIN</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Dashboard -->
+  <main>
+    <!-- KPI Summary Grid -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon blue"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div class="kpi-data">
+          <h3 id="kpiValuation">₹0</h3>
+          <p>Total Inventory Valuation</p>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon emerald"><i class="fa-solid fa-warehouse"></i></div>
+        <div class="kpi-data">
+          <h3 id="kpiWarehouses">0</h3>
+          <p>Active Depots & Bio-Vaults</p>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon blue"><i class="fa-solid fa-boxes-stacked"></i></div>
+        <div class="kpi-data">
+          <h3 id="kpiTotalUnits">0</h3>
+          <p>Total Clinical Units In Stock</p>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon rose"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="kpi-data">
+          <h3 id="kpiLowStock">0</h3>
+          <p>Low Stock Alerts</p>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon amber"><i class="fa-solid fa-right-left"></i></div>
+        <div class="kpi-data">
+          <h3 id="kpiPendingTransfers">0</h3>
+          <p>Pending Transfers</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-nav">
+      <button class="tab-btn active" onclick="showTab('warehouses')"><i class="fa-solid fa-warehouse"></i> Facilities & Vaults</button>
+      <button class="tab-btn" onclick="showTab('items')"><i class="fa-solid fa-capsules"></i> SKU Master</button>
+      <button class="tab-btn" onclick="showTab('operations')"><i class="fa-solid fa-dolly"></i> Stock Operations</button>
+      <button class="tab-btn" onclick="showTab('transfers')"><i class="fa-solid fa-truck-ramp-box"></i> Transfers</button>
+      <button class="tab-btn" onclick="showTab('alerts')"><i class="fa-solid fa-bell"></i> Low-Stock Alerts</button>
+      <button class="tab-btn" onclick="showTab('movements')"><i class="fa-solid fa-clipboard-list"></i> Audit Log</button>
+      <button class="tab-btn" onclick="showTab('reports')"><i class="fa-solid fa-chart-pie"></i> Valuation & Reports</button>
+    </nav>
+
+    <!-- TAB 1: Warehouses Grid -->
+    <div id="tab-warehouses" class="tab-panel active">
+      <div class="section-header">
+        <h2>Multi-Warehouse Facilities & Bio-Vault Capacity Utilization</h2>
+        <button class="btn" onclick="openModal('modalWarehouse')"><i class="fa-solid fa-plus"></i> Add Facility / Bio-Vault</button>
+      </div>
+      <div class="warehouse-grid" id="warehousesContainer">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+    <!-- TAB 2: SKU Master & Stock Matrix -->
+    <div id="tab-items" class="tab-panel">
+      <div class="section-header">
+        <h2>Clinical Pharmaceutical SKU Master & Inventory Matrix</h2>
+        <div>
+          <button class="btn" onclick="openModal('modalItem')"><i class="fa-solid fa-plus"></i> Add New SKU</button>
+        </div>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>SKU Code</th>
+              <th>Medicine / Drug Name</th>
+              <th>Category</th>
+              <th>Unit Price</th>
+              <th>Reorder Point</th>
+              <th>Cold-Chain Vault</th>
+              <th>Total Stock</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="itemsTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 3: Stock Operations -->
+    <div id="tab-operations" class="tab-panel">
+      <div class="section-header">
+        <h2>Stock-In (Batch Receipt), Stock-Out (Hospital Dispatch) & Adjustments</h2>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-success" onclick="openModal('modalStockIn')"><i class="fa-solid fa-arrow-down"></i> Record Inbound Stock</button>
+          <button class="btn btn-danger" onclick="openModal('modalStockOut')"><i class="fa-solid fa-arrow-up"></i> Record Dispatch</button>
+          <button class="btn btn-secondary" onclick="openModal('modalAdjustment')"><i class="fa-solid fa-sliders"></i> Stock Adjustment</button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <h3 style="padding: 1rem; border-bottom: 1px solid var(--card-border); font-size: 1rem;">Per-Warehouse Running Stock Matrix</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Warehouse</th>
+              <th>Medicine Item / SKU</th>
+              <th>Category</th>
+              <th>Available Balance</th>
+              <th>Valuation</th>
+              <th>Status</th>
+              <th>Last Updated</th>
+            </tr>
+          </thead>
+          <tbody id="stockBalancesTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: Transfers & Workflow -->
+    <div id="tab-transfers" class="tab-panel">
+      <div class="section-header">
+        <h2>Inter-Warehouse Medical Transfers & Approval State Machine</h2>
+        <button class="btn" onclick="openModal('modalTransfer')"><i class="fa-solid fa-plus"></i> Request Stock Transfer</button>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Transfer #</th>
+              <th>Origin Facility</th>
+              <th>Destination Facility</th>
+              <th>Medicine / Item</th>
+              <th>Qty</th>
+              <th>Status</th>
+              <th>Requested By</th>
+              <th>Remarks</th>
+              <th>Workflow Action</th>
+            </tr>
+          </thead>
+          <tbody id="transfersTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 5: Low Stock Alerts & Reorders -->
+    <div id="tab-alerts" class="tab-panel">
+      <div class="section-header">
+        <h2>Real-Time Low Stock Alerts & Automated Reorder Suggestions</h2>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>Facility</th>
+              <th>Medicine / SKU</th>
+              <th>Current Stock</th>
+              <th>Threshold</th>
+              <th>Shortage</th>
+              <th>Suggested Reorder</th>
+              <th>Est. Reorder Cost</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="alertsTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 6: Audit & Movement Log -->
+    <div id="tab-movements" class="tab-panel">
+      <div class="section-header">
+        <h2>Immutable Stock Movement Audit Trail</h2>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Movement Type</th>
+              <th>Warehouse</th>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Balance Before &rarr; After</th>
+              <th>Ref / Reason</th>
+              <th>Performed By</th>
+            </tr>
+          </thead>
+          <tbody id="movementsTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 7: Valuation & Reports -->
+    <div id="tab-reports" class="tab-panel">
+      <div class="section-header">
+        <h2>Manager & Admin Reports & Financial Analytics</h2>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <!-- Category Valuation Card -->
+        <div class="table-card" style="padding: 1.25rem;">
+          <h3 style="margin-bottom: 1rem; font-size: 1rem;"><i class="fa-solid fa-chart-column"></i> Valuation by Category</h3>
+          <div id="categoryValuationList">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Warehouse Valuation Card -->
+        <div class="table-card" style="padding: 1.25rem;">
+          <h3 style="margin-bottom: 1rem; font-size: 1rem;"><i class="fa-solid fa-city"></i> Valuation by Facility</h3>
+          <div id="warehouseValuationList">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Fast Moving SKUs Table -->
+      <div class="table-card">
+        <h3 style="padding: 1rem; border-bottom: 1px solid var(--card-border); font-size: 1rem;"><i class="fa-solid fa-bolt"></i> Fast-Moving Pharmaceuticals (Turnover Velocity)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Medicine Name</th>
+              <th>Category</th>
+              <th>Total Units Dispatched</th>
+              <th>Dispatch Events Count</th>
+              <th>Last Dispatched</th>
+            </tr>
+          </thead>
+          <tbody id="fastMovingTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODALS -->
+
+  <!-- Modal: Add Warehouse -->
+  <div class="modal" id="modalWarehouse">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-warehouse"></i> Add Warehouse / Facility</h3>
+        <button class="close-btn" onclick="closeModal('modalWarehouse')">&times;</button>
+      </div>
+      <form id="formWarehouse" onsubmit="handleCreateWarehouse(event)">
+        <div class="form-group">
+          <label>Facility Code</label>
+          <input type="text" class="form-control" name="code" placeholder="e.g. WH-BLR-05" required>
+        </div>
+        <div class="form-group">
+          <label>Facility Name</label>
+          <input type="text" class="form-control" name="name" placeholder="e.g. Bengaluru Biotech Hub" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" class="form-control" name="city" placeholder="Bengaluru" required>
+          </div>
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" class="form-control" name="state" placeholder="Karnataka" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Storage Capacity (Units / Pallets)</label>
+          <input type="number" class="form-control" name="capacity" placeholder="20000" min="100" required>
+        </div>
+        <div class="form-group">
+          <label>Facility Type</label>
+          <select class="form-control" name="type">
+            <option value="CENTRAL_HUB">Central Manufacturing & Bulk Hub</option>
+            <option value="COLD_CHAIN">Cold-Chain Bio-Vault (2°C - 8°C)</option>
+            <option value="REGIONAL_DEPOT">Regional Distribution Depot</option>
+            <option value="TRANSIT_VAULT">Transit Quarantine Vault</option>
+          </select>
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+          <input type="checkbox" name="temperatureControlled" id="whTempControl">
+          <label for="whTempControl" style="margin: 0;">Temperature & Cold-Chain Controlled Vault</label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalWarehouse')">Cancel</button>
+          <button type="submit" class="btn">Create Facility</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add SKU -->
+  <div class="modal" id="modalItem">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-capsules"></i> Add New Pharmaceutical SKU</h3>
+        <button class="close-btn" onclick="closeModal('modalItem')">&times;</button>
+      </div>
+      <form id="formItem" onsubmit="handleCreateItem(event)">
+        <div class="form-group">
+          <label>SKU Code</label>
+          <input type="text" class="form-control" name="sku" placeholder="e.g. MED-VAC-701" required>
+        </div>
+        <div class="form-group">
+          <label>Medicine / Item Name</label>
+          <input type="text" class="form-control" name="name" placeholder="e.g. Rabies Inactivated Vaccine 2.5 IU" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Category</label>
+            <select class="form-control" name="category" required>
+              <option value="VACCINES">Vaccines & Biologicals</option>
+              <option value="COLD_CHAIN">Cold-Chain Therapeutics</option>
+              <option value="ANTIBIOTICS">Antibiotics & Antimicrobials</option>
+              <option value="CRITICAL_CARE">Critical Care & Infusions</option>
+              <option value="MEDICAL_DEVICES">Medical Devices & Instruments</option>
+              <option value="CONSUMABLES">Surgical & Clinical Consumables</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Unit of Measure</label>
+            <select class="form-control" name="unit" required>
+              <option value="vials">vials</option>
+              <option value="boxes">boxes</option>
+              <option value="strips">strips</option>
+              <option value="bottles">bottles</option>
+              <option value="units">units</option>
+              <option value="cartons">cartons</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Unit Price (₹)</label>
+            <input type="number" class="form-control" name="unitPrice" placeholder="1250" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Reorder Point</label>
+            <input type="number" class="form-control" name="reorderPoint" placeholder="250" min="1" required>
+          </div>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); border: 1px dashed var(--card-border); padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem;">
+          <div style="font-size: 0.78rem; font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;"><i class="fa-solid fa-box"></i> Optional: Add Initial Stock Quantity</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group" style="margin: 0;">
+              <label>Initial Facility</label>
+              <select class="form-control select-warehouses" name="initialWarehouseId"></select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label>Initial Units</label>
+              <input type="number" class="form-control" name="initialQuantity" placeholder="0" min="0">
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+          <input type="checkbox" name="requiresColdChain" id="itemColdChain">
+          <label for="itemColdChain" style="margin: 0;">Requires Cold-Chain Bio-Vault (2°C - 8°C)</label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalItem')">Cancel</button>
+          <button type="submit" class="btn">Save & Create SKU</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Edit SKU -->
+  <div class="modal" id="modalEditItem">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-pen-to-square"></i> Edit Pharmaceutical SKU</h3>
+        <button class="close-btn" onclick="closeModal('modalEditItem')">&times;</button>
+      </div>
+      <form id="formEditItem" onsubmit="handleEditItem(event)">
+        <input type="hidden" name="id" id="editItemId">
+        <div class="form-group">
+          <label>SKU Code</label>
+          <input type="text" class="form-control" name="sku" id="editItemSku" readonly style="opacity: 0.7;">
+        </div>
+        <div class="form-group">
+          <label>Medicine / Item Name</label>
+          <input type="text" class="form-control" name="name" id="editItemName" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Category</label>
+            <select class="form-control" name="category" id="editItemCategory" required>
+              <option value="VACCINES">Vaccines & Biologicals</option>
+              <option value="COLD_CHAIN">Cold-Chain Therapeutics</option>
+              <option value="ANTIBIOTICS">Antibiotics & Antimicrobials</option>
+              <option value="CRITICAL_CARE">Critical Care & Infusions</option>
+              <option value="MEDICAL_DEVICES">Medical Devices & Instruments</option>
+              <option value="CONSUMABLES">Surgical & Clinical Consumables</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Unit of Measure</label>
+            <select class="form-control" name="unit" id="editItemUnit" required>
+              <option value="vials">vials</option>
+              <option value="boxes">boxes</option>
+              <option value="strips">strips</option>
+              <option value="bottles">bottles</option>
+              <option value="units">units</option>
+              <option value="cartons">cartons</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Unit Price (₹)</label>
+            <input type="number" class="form-control" name="unitPrice" id="editItemPrice" min="0" required>
+          </div>
+          <div class="form-group">
+            <label>Reorder Point</label>
+            <input type="number" class="form-control" name="reorderPoint" id="editItemReorder" min="1" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalEditItem')">Cancel</button>
+          <button type="submit" class="btn">Update SKU</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Item Warehouse Breakdown -->
+  <div class="modal" id="modalItemDetails">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 id="itemDetailsTitle"><i class="fa-solid fa-circle-info"></i> Drug Inventory Breakdown</h3>
+        <button class="close-btn" onclick="closeModal('modalItemDetails')">&times;</button>
+      </div>
+      <div id="itemDetailsContent" style="margin-bottom: 1.5rem;">
+        <!-- Rendered via JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalItemDetails')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Stock-In -->
+  <div class="modal" id="modalStockIn">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-arrow-down" style="color: var(--success);"></i> Record Inbound Stock (Batch Receipt)</h3>
+        <button class="close-btn" onclick="closeModal('modalStockIn')">&times;</button>
+      </div>
+      <form id="formStockIn" onsubmit="handleStockIn(event)">
+        <div class="form-group">
+          <label>Receiving Facility</label>
+          <select class="form-control select-warehouses" name="warehouseId" required></select>
+        </div>
+        <div class="form-group">
+          <label>Medicine / SKU</label>
+          <select class="form-control select-items" name="itemId" required></select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" class="form-control" name="quantity" min="1" placeholder="500" required>
+          </div>
+          <div class="form-group">
+            <label>Manufacturing Batch #</label>
+            <input type="text" class="form-control" name="batchNo" placeholder="e.g. BATCH-VAC-2025-09">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Supplier / PO Invoice Reference</label>
+          <input type="text" class="form-control" name="referenceNumber" placeholder="PO-PHARMA-2025-104">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalStockIn')">Cancel</button>
+          <button type="submit" class="btn btn-success">Receive Stock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Stock-Out -->
+  <div class="modal" id="modalStockOut">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-arrow-up" style="color: var(--danger);"></i> Record Stock-Out (Hospital Dispatch)</h3>
+        <button class="close-btn" onclick="closeModal('modalStockOut')">&times;</button>
+      </div>
+      <form id="formStockOut" onsubmit="handleStockOut(event)">
+        <div class="form-group">
+          <label>Dispatch Facility</label>
+          <select class="form-control select-warehouses" name="warehouseId" required></select>
+        </div>
+        <div class="form-group">
+          <label>Medicine / SKU</label>
+          <select class="form-control select-items" name="itemId" required></select>
+        </div>
+        <div class="form-group">
+          <label>Quantity to Dispatch</label>
+          <input type="number" class="form-control" name="quantity" min="1" placeholder="100" required>
+        </div>
+        <div class="form-group">
+          <label>Hospital Order / Dispatch Reference</label>
+          <input type="text" class="form-control" name="referenceNumber" placeholder="HOSP-ORD-902">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalStockOut')">Cancel</button>
+          <button type="submit" class="btn btn-danger">Dispatch Stock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Physical Count Adjustment -->
+  <div class="modal" id="modalAdjustment">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-sliders" style="color: var(--warning);"></i> Stock Audit & Discrepancy Adjustment</h3>
+        <button class="close-btn" onclick="closeModal('modalAdjustment')">&times;</button>
+      </div>
+      <form id="formAdjustment" onsubmit="handleAdjustment(event)">
+        <div class="form-group">
+          <label>Warehouse</label>
+          <select class="form-control select-warehouses" name="warehouseId" required></select>
+        </div>
+        <div class="form-group">
+          <label>Medicine / Item</label>
+          <select class="form-control select-items" name="itemId" required></select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label>Adjustment Type</label>
+            <select class="form-control" name="adjustmentType" required>
+              <option value="ADJUSTMENT_DEDUCT">Deduct (-) Stock</option>
+              <option value="ADJUSTMENT_ADD">Add (+) Stock</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Adjustment Qty</label>
+            <input type="number" class="form-control" name="quantity" min="1" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Audit Reason Code</label>
+          <select class="form-control" name="reasonCode" required>
+            <option value="DAMAGED_COLD_CHAIN">Cold-Chain Temperature Excursion / Damage</option>
+            <option value="EXPIRED_LOT">Expired Batch Lot</option>
+            <option value="THEFT_LOSS">Shrinkage / Transit Loss</option>
+            <option value="AUDIT_CORRECTION">Physical Inventory Reconciliation</option>
+            <option value="OTHER">Other Audit Reason</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Audit Notes</label>
+          <input type="text" class="form-control" name="notes" placeholder="e.g. Temperature sensor logger breach recorded during storage check">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalAdjustment')">Cancel</button>
+          <button type="submit" class="btn">Record Adjustment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: New Transfer Request -->
+  <div class="modal" id="modalTransfer">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-truck-ramp-box"></i> Inter-Warehouse Transfer Request</h3>
+        <button class="close-btn" onclick="closeModal('modalTransfer')">&times;</button>
+      </div>
+      <form id="formTransfer" onsubmit="handleCreateTransfer(event)">
+        <div class="form-group">
+          <label>Origin (Source) Facility</label>
+          <select class="form-control select-warehouses" name="fromWarehouseId" required></select>
+        </div>
+        <div class="form-group">
+          <label>Destination Facility</label>
+          <select class="form-control select-warehouses" name="toWarehouseId" required></select>
+        </div>
+        <div class="form-group">
+          <label>Medicine / Item</label>
+          <select class="form-control select-items" name="itemId" required></select>
+        </div>
+        <div class="form-group">
+          <label>Transfer Quantity</label>
+          <input type="number" class="form-control" name="quantity" min="1" placeholder="100" required>
+        </div>
+        <div class="form-group">
+          <label>Transfer Reason</label>
+          <input type="text" class="form-control" name="reason" placeholder="e.g. Critical vaccine replenishment for regional healthcare clinic">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalTransfer')">Cancel</button>
+          <button type="submit" class="btn">Submit Transfer Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

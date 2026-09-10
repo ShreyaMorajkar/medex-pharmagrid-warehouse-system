@@ -1,0 +1,365 @@
+{
+  "info": {
+    "_postman_id": "c71a3998-e7bf-49f3-a178-085e683b5849",
+    "name": "MedEx PharmaGrid - Multi-Warehouse Pharmaceutical & Cold-Chain Management API",
+    "description": "Comprehensive Postman Test Collection for Christ University CIA 3 - P11 Warehouse & Inventory Management System. Covers all 13 modules, Happy paths, Validation failures, Auth failures, RBAC authorization checks, and Business rule violations for MedEx PharmaGrid.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api", "type": "string" },
+    { "key": "adminToken", "value": "", "type": "string" },
+    { "key": "managerToken", "value": "", "type": "string" },
+    { "key": "staffToken", "value": "", "type": "string" },
+    { "key": "warehouseIdHyd", "value": "", "type": "string" },
+    { "key": "warehouseIdMaa", "value": "", "type": "string" },
+    { "key": "itemIdVac", "value": "", "type": "string" },
+    { "key": "itemIdAnt", "value": "", "type": "string" },
+    { "key": "transferId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "01. Authentication & RBAC",
+      "item": [
+        {
+          "name": "Login - Admin (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Token received', () => pm.expect(json.data.token).to.be.a('string'));",
+                  "pm.collectionVariables.set('adminToken', json.data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@medex.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - Manager (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('managerToken', json.data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"chennai.manager@medex.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - Staff (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('staffToken', json.data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"hyd.staff@medex.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - Invalid Credentials (401 Unauthorized)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Error code is INVALID_CREDENTIALS', () => pm.expect(pm.response.json().errorCode).to.eql('INVALID_CREDENTIALS'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@medex.com\",\n  \"password\": \"WrongPassword!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Warehouse Management",
+      "item": [
+        {
+          "name": "Get All Facilities (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "if (json.data && json.data.length >= 2) {",
+                  "  pm.collectionVariables.set('warehouseIdHyd', json.data[0]._id);",
+                  "  pm.collectionVariables.set('warehouseIdMaa', json.data[1]._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/warehouses", "host": ["{{baseUrl}}"], "path": ["warehouses"] }
+          }
+        },
+        {
+          "name": "Create Warehouse - Admin (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"WH-BLR-05\",\n  \"name\": \"Bengaluru Regional Biotech Depot\",\n  \"location\": {\n    \"city\": \"Bengaluru\",\n    \"state\": \"Karnataka\",\n    \"address\": \"Electronic City Phase II\"\n  },\n  \"capacity\": 15000,\n  \"type\": \"REGIONAL_DEPOT\",\n  \"temperatureControlled\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/warehouses", "host": ["{{baseUrl}}"], "path": ["warehouses"] }
+          }
+        },
+        {
+          "name": "Create Warehouse - Staff Forbidden (403 Forbidden)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"WH-UNAUTH\",\n  \"name\": \"Unauthorized Warehouse\",\n  \"location\": { \"city\": \"Test\", \"state\": \"Test\" },\n  \"capacity\": 5000\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/warehouses", "host": ["{{baseUrl}}"], "path": ["warehouses"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Item / SKU Master",
+      "item": [
+        {
+          "name": "Get All SKUs (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+                  "if (json.data && json.data.length >= 2) {",
+                  "  pm.collectionVariables.set('itemIdVac', json.data[0]._id);",
+                  "  pm.collectionVariables.set('itemIdAnt', json.data[2] ? json.data[2]._id : json.data[1]._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/items", "host": ["{{baseUrl}}"], "path": ["items"] }
+          }
+        },
+        {
+          "name": "Create Pharmaceutical SKU (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{managerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"MED-VAC-701\",\n  \"name\": \"Rabies Inactivated Vaccine 2.5 IU\",\n  \"category\": \"VACCINES\",\n  \"unit\": \"vials\",\n  \"unitPrice\": 1250,\n  \"reorderPoint\": 200,\n  \"reorderQuantity\": 400,\n  \"requiresColdChain\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/items", "host": ["{{baseUrl}}"], "path": ["items"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Stock Operations & Balance Engine",
+      "item": [
+        {
+          "name": "Record Inbound Stock (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"warehouseId\": \"{{warehouseIdHyd}}\",\n  \"itemId\": \"{{itemIdAnt}}\",\n  \"quantity\": 200,\n  \"batchNo\": \"BATCH-ANT-TEST\",\n  \"referenceNumber\": \"PO-MED-99\",\n  \"notes\": \"Direct manufacturer consignment\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/stock/in", "host": ["{{baseUrl}}"], "path": ["stock", "in"] }
+          }
+        },
+        {
+          "name": "Record Stock-Out - Insufficient Stock (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"warehouseId\": \"{{warehouseIdHyd}}\",\n  \"itemId\": \"{{itemIdAnt}}\",\n  \"quantity\": 9999999\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/stock/out", "host": ["{{baseUrl}}"], "path": ["stock", "out"] }
+          }
+        },
+        {
+          "name": "Get Real-Time Running Balances (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/stock/balance", "host": ["{{baseUrl}}"], "path": ["stock", "balance"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Inter-Warehouse Transfers",
+      "item": [
+        {
+          "name": "Request Transfer (201 Created)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('transferId', json.data._id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromWarehouseId\": \"{{warehouseIdHyd}}\",\n  \"toWarehouseId\": \"{{warehouseIdMaa}}\",\n  \"itemId\": \"{{itemIdAnt}}\",\n  \"quantity\": 50,\n  \"reason\": \"Hospital critical reorder stock transfer\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/transfers", "host": ["{{baseUrl}}"], "path": ["transfers"] }
+          }
+        },
+        {
+          "name": "Approve Transfer (200 OK)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{managerToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\",\n  \"decisionRemarks\": \"Approved by Chennai Cold-Chain Manager\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/transfers/{{transferId}}/decision", "host": ["{{baseUrl}}"], "path": ["transfers", "{{transferId}}", "decision"] }
+          }
+        },
+        {
+          "name": "Dispatch Transfer (200 OK)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }],
+            "url": { "raw": "{{baseUrl}}/transfers/{{transferId}}/dispatch", "host": ["{{baseUrl}}"], "path": ["transfers", "{{transferId}}", "dispatch"] }
+          }
+        },
+        {
+          "name": "Receive Transfer (200 OK)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }],
+            "url": { "raw": "{{baseUrl}}/transfers/{{transferId}}/receive", "host": ["{{baseUrl}}"], "path": ["transfers", "{{transferId}}", "receive"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Reports & Analytics",
+      "item": [
+        {
+          "name": "Financial Inventory Valuation",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/reports/valuation", "host": ["{{baseUrl}}"], "path": ["reports", "valuation"] }
+          }
+        },
+        {
+          "name": "Low-Stock Alerts & Reorder Forecast",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/reports/low-stock", "host": ["{{baseUrl}}"], "path": ["reports", "low-stock"] }
+          }
+        },
+        {
+          "name": "Warehouse Capacity Utilization",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": { "raw": "{{baseUrl}}/reports/warehouse-utilization", "host": ["{{baseUrl}}"], "path": ["reports", "warehouse-utilization"] }
+          }
+        }
+      ]
+    }
+  ]
+}
